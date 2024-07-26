@@ -1,0 +1,79 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+</head>
+
+<body>
+    <!-- Navbar start -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Todo App</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
+                aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item login-register">
+                        <a class="nav-link active" aria-current="page" href="pages/register.html">Đăng ký</a>
+                    </li>
+                    <li class="nav-item login-register">
+                        <a class="nav-link" href="pages/login.html">Đăng nhập</a>
+                    </li>
+                    <li class="nav-item user-info">
+                        <span id="userLogin" class="nav-link">Hello <b></b></span>
+                    </li>
+                    <li class="nav-item user-info" style="display: none;">
+                        <a id="logout" class="nav-link" href="#">Đăng xuất</a>
+                    </li>
+                </ul>
+                <form class="d-flex">
+                    <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+                    <button class="btn btn-outline-success" type="submit">Search</button>
+                </form>
+            </div>
+        </div>
+    </nav>
+    <!-- Navbar end -->
+    <div class="wrapper">
+        <img src="/asset/logoTodo.png" alt="" width="100" height="100">
+        <h1>TODO</h1>
+
+        <div class="task-input">
+            <input type="text" placeholder="Task name..." class="task-input">
+            <button class="add-button">Add</button>
+            <button class="reset-button">Cancel</button>
+        </div>
+
+        <div class="tasks-container">
+            <ul class="task-box">
+                <!-- <li class="task">
+                    <label for="1">
+                        <input type="checkbox" id="1">
+                        <span>an</span>
+                        <button>Edit</button>
+                        <button>Delete</button>
+                    </label>
+                </li> -->
+            </ul>
+
+            <div class="filter">
+                <select>
+                    <option value="all">All</option>
+                    <option value="completed">Done</option>
+                    <option value="pending">Undone</option>
+                </select>
+            </div>
+        </div>
+    </div>
+    <script src="/js/home.js"></script>
+</body>
+
+</html>
