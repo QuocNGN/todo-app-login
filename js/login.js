@@ -23,7 +23,6 @@ formLogin.addEventListener('submit', function (e) {
   );
 
   if (!findUser) {
-    // Nếu khôn thì thông báo cho người dùng nhập lại dữ liệu
     handleCreateToast('error');
   } else {
     handleCreateToast('success');
@@ -40,6 +39,11 @@ formLogin.addEventListener('submit', function (e) {
     } else {
       sessionStorage.setItem('userLogin', JSON.stringify(findUser));
     }
+
+    // Lưu trữ danh sách todos của người dùng hiện tại
+    const todos =
+      JSON.parse(localStorage.getItem(`todos_${findUser.userId}`)) || [];
+    localStorage.setItem(`todos_${findUser.userId}`, JSON.stringify(todos));
   }
 });
 

@@ -4,7 +4,19 @@ const logoutButton = document.getElementById('logout');
 const loginRegisterLinks = document.querySelectorAll('.login-register');
 const userInfo = document.querySelectorAll('.user-info');
 
-// Lấy dữ liệu trên Session Local về
+// Khởi tạo các biến liên quan đến todo list
+const taskInput = document.querySelector('.task-input input');
+const taskBox = document.querySelector('.task-box');  // Đảm bảo taskBox được khởi tạo trước khi sử dụng
+const selectFilters = document.querySelector('.filter select');
+const addButton = document.querySelector('.add-button');
+const resetButton = document.querySelector('.reset-button');
+
+let todos = [];
+let editId;
+let isEditedTask = false;
+let currentFilter = 'all';
+
+// Lấy dữ liệu người dùng đã đăng nhập
 const userLogin = JSON.parse(
   localStorage.getItem('userLogin') || sessionStorage.getItem('userLogin')
 );
@@ -18,38 +30,27 @@ if (!userLogin) {
   // Hiển thị thông tin người dùng và nút đăng xuất; Cho ẩn liên kết đăng ký/đăng nhập
   userInfo.forEach((ele) => (ele.style.display = 'block'));
   loginRegisterLinks.forEach((ele) => (ele.style.display = 'none'));
-  // // Ẩn thông tin người dùng và nút đăng xuất; Cho hiện liên kết đăng nhập/đăng ký
-  // userInfo.forEach((ele) => (ele.style.display = 'none'));
-  // loginRegisterLinks.forEach((ele) => (ele.style.display = 'block'));
+
+  // Lấy danh sách todo từ localStorage của người dùng hiện tại
+  todos = JSON.parse(localStorage.getItem(`todos_${userLogin.userId}`)) || [];
+  showTodo();
 }
 
 // Chức năng đăng xuất
 if (logoutButton) {
   logoutButton.addEventListener('click', () => {
-    // Remove user data from both storages
+    // Xóa thông tin người dùng từ cả localStorage và sessionStorage
     localStorage.removeItem('userLogin');
     sessionStorage.removeItem('userLogin');
 
-    // Chuyển hướng về trang đăng nhập
+    // Chuyển hướng về trang đăng nhập sau 1.5 giây
     setTimeout(() => {
-      // Chuyển hướng về trang đăng nhập sau 1.5s
       window.location.href = 'pages/login.html';
     }, 1500);
   });
 }
 
-// Todo list
-const taskInput = document.querySelector('.task-input input');
-const taskBox = document.querySelector('.task-box');
-const selectFilters = document.querySelector('.filter select');
-const addButton = document.querySelector('.add-button');
-const resetButton = document.querySelector('.reset-button');
-
-let editId;
-let isEditedTask = false;
-let todos = [];
-let currentFilter = 'all';
-
+// Các hàm liên quan đến todo list
 selectFilters.addEventListener('change', (event) => {
   const selected = event.target.value;
   currentFilter = selected;
@@ -82,8 +83,6 @@ function showTodo() {
     `<img src="/asset/no-task.png" alt="" class="empty-image" width="150">`;
 }
 
-showTodo();
-
 function updateStatus(selectedTask) {
   let taskName = selectedTask.nextElementSibling;
   if (selectedTask.checked) {
@@ -93,6 +92,7 @@ function updateStatus(selectedTask) {
     taskName.classList.remove('checked');
     todos[selectedTask.id].status = 'pending';
   }
+  saveTodos(); // Lưu todos sau khi thay đổi trạng thái
   showTodo(); // Cập nhật giao diện sau khi thay đổi trạng thái
 }
 
@@ -106,6 +106,7 @@ function editTask(taskId, taskName) {
 function deleteTask(deleteId) {
   isEditedTask = false;
   todos.splice(deleteId, 1);
+  saveTodos(); // Lưu todos sau khi xóa
   showTodo();
 }
 
@@ -121,8 +122,14 @@ function handleAddTask() {
       addButton.textContent = 'Add';
     }
     taskInput.value = '';
+    saveTodos(); // Lưu todos sau khi thêm hoặc chỉnh sửa
     showTodo();
   }
+}
+
+function saveTodos() {
+  // Lưu danh sách todo vào localStorage theo userId
+  localStorage.setItem(`todos_${userLogin.userId}`, JSON.stringify(todos));
 }
 
 addButton.addEventListener('click', handleAddTask);
