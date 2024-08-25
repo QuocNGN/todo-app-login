@@ -3,18 +3,19 @@ const formRegister = document.getElementById('form-register');
 const username = document.getElementById('username');
 const email = document.getElementById('email');
 const password = document.getElementById('password');
-const password2 = document.getElementById('password2');
+const repeatPassword = document.getElementById('repeatPassword');
 const notifications = document.querySelector('.notifications');
 
 // Lấy dữ liệu từ LocalStorage
 const userLocal = JSON.parse(localStorage.getItem('users')) || [];
 
 // Hàm tạo random UUID
-function uuidv4() {
-  return '10000000-1000-4000-8000-100000000000'.replace(/[018]/g, (c) =>
+function generateUuidv4() {
+  const template = '10000000-1000-4000-8000-100000000000';
+  return template.replace(/[018]/g, (placeholderCharacter) =>
     (
-      +c ^
-      (crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (+c / 4)))
+      +placeholderCharacter ^
+      (crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (+placeholderCharacter / 4)))
     ).toString(16)
   );
 }
@@ -32,13 +33,13 @@ formRegister.addEventListener('submit', function (e) {
     username.value &&
     email.value &&
     password.value &&
-    password2.value &&
-    password.value === password2.value &&
+    repeatPassword.value &&
+    password.value === repeatPassword.value &&
     isValidEmail(email.value)
   ) {
     // Lấy dữ liệu từ form và gộp thành đối tượng user
     const user = {
-      userId: uuidv4(),
+      userId: generateUuidv4(),
       username: username.value,
       email: email.value,
       password: password.value,
@@ -94,7 +95,7 @@ const validateInputs = () => {
   const usernameValue = username.value.trim();
   const emailValue = email.value.trim();
   const passwordValue = password.value.trim();
-  const password2Value = password2.value.trim();
+  const repeatPasswordValue = repeatPassword.value.trim();
 
   if (usernameValue === '') {
     setError(username, 'Username is required');
@@ -118,12 +119,12 @@ const validateInputs = () => {
     setSuccess(password);
   }
 
-  if (password2Value === '') {
-    setError(password2, 'Please confirm your password');
-  } else if (password2Value !== passwordValue) {
-    setError(password2, "Password doesn't match");
+  if (repeatPasswordValue === '') {
+    setError(repeatPassword, 'Please confirm your password');
+  } else if (repeatPasswordValue !== passwordValue) {
+    setError(repeatPassword, "Password doesn't match");
   } else {
-    setSuccess(password2);
+    setSuccess(repeatPassword);
   }
 };
 

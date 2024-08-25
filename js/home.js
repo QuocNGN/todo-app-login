@@ -6,7 +6,7 @@ const userInfo = document.querySelectorAll('.user-info');
 
 // Khởi tạo các biến liên quan đến todo list
 const taskInput = document.querySelector('.task-input input');
-const taskBox = document.querySelector('.task-box');  // Đảm bảo taskBox được khởi tạo trước khi sử dụng
+const taskBox = document.querySelector('.task-box'); // Đảm bảo taskBox được khởi tạo trước khi sử dụng
 const selectFilters = document.querySelector('.filter select');
 const addButton = document.querySelector('.add-button');
 const resetButton = document.querySelector('.reset-button');
@@ -17,22 +17,23 @@ let isEditedTask = false;
 let currentFilter = 'all';
 
 // Lấy dữ liệu người dùng đã đăng nhập
-const userLogin = JSON.parse(
+const loggedInUser = JSON.parse(
   localStorage.getItem('userLogin') || sessionStorage.getItem('userLogin')
 );
 
-if (!userLogin) {
+if (!loggedInUser) {
   window.location.href = '/pages/login.html';
 } else {
   // Hiển thị tên user đang đăng nhập lên header
-  userLoginEle.innerHTML = `Hello <b>${userLogin.username}</b>`;
+  userLoginEle.innerHTML = `Hello <b>${loggedInUser.username}</b>`;
 
   // Hiển thị thông tin người dùng và nút đăng xuất; Cho ẩn liên kết đăng ký/đăng nhập
   userInfo.forEach((ele) => (ele.style.display = 'block'));
   loginRegisterLinks.forEach((ele) => (ele.style.display = 'none'));
 
   // Lấy danh sách todo từ localStorage của người dùng hiện tại
-  todos = JSON.parse(localStorage.getItem(`todos_${userLogin.userId}`)) || [];
+  todos =
+    JSON.parse(localStorage.getItem(`todos_${loggedInUser.userId}`)) || [];
   showTodo();
 }
 
@@ -57,6 +58,18 @@ selectFilters.addEventListener('change', (event) => {
   showTodo();
 });
 
+function renderTodo(todo, id) {
+  const isCompleted = todo.status === 'completed' ? 'checked' : '';
+  return `<li class="task">
+            <label for="${id}">
+                <input type="checkbox" id="${id}" onclick="updateStatus(this)" ${isCompleted}>
+                <span class=${isCompleted}>${todo.name}</span>
+                <button onclick="editTask(${id}, '${todo.name}')">Edit</button>
+                <button onclick="deleteTask(${id})">Delete</button>
+            </label>
+          </li>`;
+}
+
 function showTodo() {
   // Sắp xếp todos: 'pending' lên trước, 'completed' xuống dưới
   todos.sort((a, b) => (a.status === 'completed' ? 1 : -1));
@@ -64,16 +77,8 @@ function showTodo() {
   let li = '';
   if (todos.length > 0) {
     todos.forEach((todo, id) => {
-      let isCompleted = todo.status == 'completed' ? 'checked' : '';
-      if (currentFilter == todo.status || currentFilter == 'all') {
-        li += `<li class="task">
-                  <label for="${id}">
-                      <input type="checkbox" id="${id}" onclick="updateStatus(this)" ${isCompleted}>
-                      <span class=${isCompleted}>${todo.name}</span>
-                      <button onclick="editTask(${id}, '${todo.name}')">Edit</button>
-                      <button onclick="deleteTask(${id})">Delete</button>
-                  </label>
-                </li>`;
+      if (currentFilter === todo.status || currentFilter === 'all') {
+        li += renderTodo(todo, id);
       }
     });
   }
@@ -111,25 +116,29 @@ function deleteTask(deleteId) {
 }
 
 function handleAddTask() {
-  let userTask = taskInput.value.trim();
-  if (userTask) {
-    if (!isEditedTask) {
-      let taskInfo = { name: userTask, status: 'pending' };
-      todos.push(taskInfo);
-    } else {
-      isEditedTask = false;
-      todos[editId].name = userTask;
-      addButton.textContent = 'Add';
-    }
-    taskInput.value = '';
-    saveTodos(); // Lưu todos sau khi thêm hoặc chỉnh sửa
-    showTodo();
+  const userTask = taskInput.value.trim();
+
+  if (!userTask) {
+    return; // Nếu không có giá trị hợp lệ thì thoát hàm
   }
+
+  if (isEditedTask) {
+    todos[editId].name = userTask;
+    isEditedTask = false;
+    addButton.textContent = 'Add';
+  } else {
+    const taskInfo = { name: userTask, status: 'pending' };
+    todos.push(taskInfo);
+  }
+
+  taskInput.value = '';
+  saveTodos(); // Lưu todos sau khi thêm hoặc chỉnh sửa
+  showTodo();
 }
 
 function saveTodos() {
   // Lưu danh sách todo vào localStorage theo userId
-  localStorage.setItem(`todos_${userLogin.userId}`, JSON.stringify(todos));
+  localStorage.setItem(`todos_${loggedInUser.userId}`, JSON.stringify(todos));
 }
 
 addButton.addEventListener('click', handleAddTask);
