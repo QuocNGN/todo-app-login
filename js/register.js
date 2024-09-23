@@ -1,3 +1,6 @@
+import { setError, setSuccess, validateEmail } from '../utils/utils.js';
+import { toastDetails } from '../utils/toastMessages.js';
+
 // Lấy ra elements của trang Register
 const formRegister = document.getElementById('form-register');
 const username = document.getElementById('username');
@@ -15,7 +18,8 @@ function generateUuidv4() {
   return template.replace(/[018]/g, (placeholderCharacter) =>
     (
       +placeholderCharacter ^
-      (crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (+placeholderCharacter / 4)))
+      (crypto.getRandomValues(new Uint8Array(1))[0] &
+        (15 >> (+placeholderCharacter / 4)))
     ).toString(16)
   );
 }
@@ -35,7 +39,7 @@ formRegister.addEventListener('submit', function (e) {
     password.value &&
     repeatPassword.value &&
     password.value === repeatPassword.value &&
-    isValidEmail(email.value)
+    validateEmail(email.value)
   ) {
     // Lấy dữ liệu từ form và gộp thành đối tượng user
     const user = {
@@ -61,37 +65,7 @@ formRegister.addEventListener('submit', function (e) {
   }
 });
 
-const setError = (element, message) => {
-  const inputControl = element.parentElement;
-  const errorDisplay = inputControl.querySelector('.error');
-
-  errorDisplay.innerText = message;
-  inputControl.classList.add('error');
-  inputControl.classList.remove('success');
-};
-
-const setSuccess = (element) => {
-  const inputControl = element.parentElement;
-  const errorDisplay = inputControl.querySelector('.error');
-
-  errorDisplay.innerText = '';
-  inputControl.classList.add('success');
-  inputControl.classList.remove('error');
-};
-
-/**
- * Validate địa chỉ email
- * @param {*} email: Chuỗi email người dùng nhập vào
- * @returns: Dữ liệu nếu mail đúng định dạng, undefined nếu email không đúng định dạng
- * Author: QuocNQN(21/07/2024)
- */
-const isValidEmail = (email) => {
-  const re =
-    /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-  return re.test(String(email).toLowerCase());
-};
-
-const validateInputs = () => {
+function validateInputs() {
   const usernameValue = username.value.trim();
   const emailValue = email.value.trim();
   const passwordValue = password.value.trim();
@@ -105,7 +79,7 @@ const validateInputs = () => {
 
   if (email === '') {
     setError(email, 'Email is required');
-  } else if (!isValidEmail(emailValue)) {
+  } else if (!validateEmail(emailValue)) {
     setError(email, 'Provide a valid email address');
   } else {
     setSuccess(email);
@@ -126,28 +100,16 @@ const validateInputs = () => {
   } else {
     setSuccess(repeatPassword);
   }
-};
-
-// Toast details
-const toastDetails = {
-  success: {
-    icon: 'fa-check-circle',
-    message: 'You have registered successfully!',
-  },
-  error: {
-    icon: 'fa-times-circle',
-    message: 'Invalid username or password.',
-  },
-};
+}
 
 // Remove toast
-const removeToast = (toast) => {
+function removeToast(toast) {
   toast.classList.add('remove');
   setTimeout(() => toast.remove(), 1000); // Adjust the timeout to remove quickly
-};
+}
 
 // Create toast notification
-const handleCreateToast = (id) => {
+function handleCreateToast(id) {
   const { icon, message } = toastDetails[id];
   const toast = document.createElement('li');
   toast.className = `toast ${id}`;
@@ -159,5 +121,5 @@ const handleCreateToast = (id) => {
     <i class="fa-solid fa-xmark" onclick="removeToast(this.parentElement)"></i>
   `;
   notifications.appendChild(toast);
-  setTimeout(() => removeToast(toast), 1500); // Automatically remove after 5 seconds
-};
+  setTimeout(() => removeToast(toast), 1500); // Automatically remove after 1.5 seconds
+}

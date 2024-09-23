@@ -85,7 +85,7 @@ function showTodo() {
 
   taskBox.innerHTML =
     li ||
-    `<img src="/asset/no-task.png" alt="" class="empty-image" width="150">`;
+    `<img src="/assets/noTask.png" alt="" class="empty-image" width="150">`;
 }
 
 function updateStatus(selectedTask) {

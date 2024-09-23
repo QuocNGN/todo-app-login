@@ -1,3 +1,6 @@
+import { setError, setSuccess } from '../utils/utils.js';
+import { toastDetails } from '../utils/toastMessages.js';
+
 // Lấy ra elements của trang Login
 const formLogin = document.getElementById('form-login');
 const usernameEle = document.getElementById('username');
@@ -47,26 +50,6 @@ formLogin.addEventListener('submit', function (e) {
   }
 });
 
-// Set error message
-const setError = (element, message) => {
-  const inputControl = element.parentElement;
-  const errorDisplay = inputControl.querySelector('.error');
-
-  errorDisplay.innerText = message;
-  inputControl.classList.add('error');
-  inputControl.classList.remove('success');
-};
-
-// Set success message
-const setSuccess = (element) => {
-  const inputControl = element.parentElement;
-  const errorDisplay = inputControl.querySelector('.error');
-
-  errorDisplay.innerText = '';
-  inputControl.classList.add('success');
-  inputControl.classList.remove('error');
-};
-
 const validateInputs = () => {
   const usernameValue = username.value.trim();
   const passwordValue = password.value.trim();
@@ -84,18 +67,6 @@ const validateInputs = () => {
   } else {
     setSuccess(password);
   }
-};
-
-// Toast details
-const toastDetails = {
-  success: {
-    icon: 'fa-check-circle',
-    message: 'You have logged in successfully!',
-  },
-  error: {
-    icon: 'fa-times-circle',
-    message: 'Invalid username or password.',
-  },
 };
 
 // Remove toast
