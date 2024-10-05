@@ -11,7 +11,7 @@ const selectFilters = document.querySelector('.filter select');
 const addButton = document.querySelector('.add-button');
 const resetButton = document.querySelector('.reset-button');
 
-let todos = [];
+let todos = JSON.parse(localStorage.getItem('todos')) || []; // Lấy todos từ localStorage
 let editId;
 let isEditedTask = false;
 let currentFilter = 'all';
@@ -31,10 +31,19 @@ if (!loggedInUser) {
   userInfo.forEach((ele) => (ele.style.display = 'block'));
   loginRegisterLinks.forEach((ele) => (ele.style.display = 'none'));
 
-  // Lấy danh sách todo từ localStorage của người dùng hiện tại
-  todos =
-    JSON.parse(localStorage.getItem(`todos_${loggedInUser.userId}`)) || [];
-  showTodo();
+  // // Lưu trữ danh sách todos của người dùng hiện tại
+  // const todos = JSON.parse(localStorage.getItem(`todos`)) || [];
+
+  // // Lọc ra các task dựa vào ownerId của người dùng hiện tại
+  // const userTodos = todos.filter(
+  //   (todo) => todo.ownerId === loggedInUser.userId
+  // );
+
+  // // Lưu lại danh sách todos đã lọc
+  // localStorage.setItem(`todos`, JSON.stringify(userTodos));
+
+  // // Bây giờ bạn có thể sử dụng userTodos để hiển thị danh sách các task
+  // showTodo();
 }
 
 // Chức năng đăng xuất
@@ -59,25 +68,33 @@ selectFilters.addEventListener('change', (event) => {
 });
 
 function renderTodo(todo, id) {
-  const isCompleted = todo.status === 'completed' ? 'checked' : '';
+  const isCompleted = todo.isDone ? 'checked' : '';
   return `<li class="task">
-            <label for="${id}">
-                <input type="checkbox" id="${id}" onclick="updateStatus(this)" ${isCompleted}>
-                <span class=${isCompleted}>${todo.name}</span>
-                <button onclick="editTask(${id}, '${todo.name}')">Edit</button>
-                <button onclick="deleteTask(${id})">Delete</button>
+            <label for="${todo.id}">
+                <input type="checkbox" id="task_${todo.id}" data-id="${todo.id}" onclick="updateStatus(this)" ${isCompleted}>
+                <span class="${isCompleted}">${todo.name}</span>
+                <button onclick="editTask('${todo.id}', '${todo.name}')">Edit</button>
+                <button onclick="deleteTask('${todo.id}')">Delete</button>
             </label>
           </li>`;
 }
 
 function showTodo() {
+  // Lọc todos theo ownerId của người dùng đang đăng nhập
+  const userTodos = todos.filter(
+    (todo) => todo.ownerId === loggedInUser.userId
+  );
+
   // Sắp xếp todos: 'pending' lên trước, 'completed' xuống dưới
-  todos.sort((a, b) => (a.status === 'completed' ? 1 : -1));
+  userTodos.sort((a, b) => (a.isDone ? 1 : -1));
 
   let li = '';
-  if (todos.length > 0) {
-    todos.forEach((todo, id) => {
-      if (currentFilter === todo.status || currentFilter === 'all') {
+  if (userTodos.length > 0) {
+    userTodos.forEach((todo, id) => {
+      if (
+        currentFilter === (todo.isDone ? 'completed' : 'pending') ||
+        currentFilter === 'all'
+      ) {
         li += renderTodo(todo, id);
       }
     });
@@ -90,15 +107,28 @@ function showTodo() {
 
 function updateStatus(selectedTask) {
   let taskName = selectedTask.nextElementSibling;
-  if (selectedTask.checked) {
-    taskName.classList.add('checked');
-    todos[selectedTask.id].status = 'completed';
+
+  // Lấy ID của task từ thuộc tính 'data-id'
+  const taskId = selectedTask.getAttribute('data-id');
+
+  // Tìm task theo id trong mảng todos
+  const todoIndex = todos.findIndex((todo) => todo.id === taskId);
+
+  // Kiểm tra nếu tìm thấy task
+  if (todoIndex !== -1) {
+    if (selectedTask.checked) {
+      taskName.classList.add('checked');
+      todos[todoIndex].isDone = true;
+    } else {
+      taskName.classList.remove('checked');
+      todos[todoIndex].isDone = false;
+    }
+
+    saveTodos(); // Lưu todos sau khi thay đổi trạng thái
+    showTodo(); // Cập nhật giao diện sau khi thay đổi trạng thái
   } else {
-    taskName.classList.remove('checked');
-    todos[selectedTask.id].status = 'pending';
+    console.error(`Task với id ${taskId} không tìm thấy.`);
   }
-  saveTodos(); // Lưu todos sau khi thay đổi trạng thái
-  showTodo(); // Cập nhật giao diện sau khi thay đổi trạng thái
 }
 
 function editTask(taskId, taskName) {
@@ -127,7 +157,12 @@ function handleAddTask() {
     isEditedTask = false;
     addButton.textContent = 'Add';
   } else {
-    const taskInfo = { name: userTask, status: 'pending' };
+    const taskInfo = {
+      id: `task_${Date.now()}`, // Tạo ID cho task dựa trên thời gian
+      name: userTask,
+      isDone: false,
+      ownerId: loggedInUser.userId, // Gán ownerId cho task
+    };
     todos.push(taskInfo);
   }
 
@@ -138,7 +173,7 @@ function handleAddTask() {
 
 function saveTodos() {
   // Lưu danh sách todo vào localStorage theo userId
-  localStorage.setItem(`todos_${loggedInUser.userId}`, JSON.stringify(todos));
+  localStorage.setItem('todos', JSON.stringify(todos));
 }
 
 addButton.addEventListener('click', handleAddTask);
@@ -154,3 +189,6 @@ resetButton.addEventListener('click', () => {
   isEditedTask = false;
   addButton.textContent = 'Add';
 });
+
+// Gọi hàm để hiển thị todo khi trang được tải
+showTodo();

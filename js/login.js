@@ -44,9 +44,9 @@ formLogin.addEventListener('submit', function (e) {
     }
 
     // Lưu trữ danh sách todos của người dùng hiện tại
-    const todos =
-      JSON.parse(localStorage.getItem(`todos_${findUser.userId}`)) || [];
-    localStorage.setItem(`todos_${findUser.userId}`, JSON.stringify(todos));
+    // const todos =
+    //   JSON.parse(localStorage.getItem(`todos_${findUser.userId}`)) || [];
+    // localStorage.setItem(`todos_${findUser.userId}`, JSON.stringify(todos));
   }
 });
 
